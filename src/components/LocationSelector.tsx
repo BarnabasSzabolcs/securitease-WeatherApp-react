@@ -1,12 +1,17 @@
 import React, { useState } from 'react'
 
-export const LocationSelector = () => {
-    const [input, setInput] = useState('')
+interface LocationSelectorProps {
+  onSubmit: (query: string) => void;
+}
+
+export const LocationSelector: React.FC<LocationSelectorProps> = ({ onSubmit }) => {
+  const [input, setInput] = useState('')
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim()) return
-    // TODO: get new weather data based on input
+    onSubmit(input.trim())
+    setInput('')
   }
 
   return (
@@ -16,13 +21,18 @@ export const LocationSelector = () => {
         className="text-input-text bg-input-bg border rounded px-2 py-1 flex-1 focus:outline focus:outline-2 focus:outline-secondary"
         placeholder="Enter location name"
         value={input}
-        onChange={e => {setInput(e.target.value); handleSubmit(e)}}
-
+        onChange={e => setInput(e.target.value.trim())}
+        onKeyUp={e => {
+          if (e.key === 'Enter') {
+            e.preventDefault()
+            handleSubmit(e)
+          }
+        }}
       />
       <button
         type="submit"
         className="bg-secondary text-text px-3 py-1 rounded shadow transition-all duration-200 hover:bg-hover hover:shadow-lg active:scale-95"
-
+        onClick={handleSubmit}
       >
         Search
       </button>
