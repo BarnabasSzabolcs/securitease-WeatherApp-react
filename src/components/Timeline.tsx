@@ -27,7 +27,7 @@ export const Timeline: React.FC<TimelineProps> = ({ weather_data, selectedDate, 
         return (
           <button
             key={date}
-            className={`flex flex-col flex-grow gap-2 items-center p-2 min-w-[50px] rounded hover:bg-primary transition-colors duration-500 ${isSelected ? 'bg-selected' : ''}`}
+            className={`flex flex-col flex-grow gap-2 items-center p-2 min-w-[50px] rounded hover:bg-primary ${isSelected ? 'bg-selected' : ''} hover:shadow-lg active:scale-95 transition-all duration-500`}
             data-e2e={isToday ? 'timeline-today' : 'timeline-item'}
             onClick={() => onDateSelect(date)}
           >
