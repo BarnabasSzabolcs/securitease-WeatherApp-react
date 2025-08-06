@@ -80,12 +80,12 @@ export function useWeather (query: string) {
           if (historicalRes) {
             weatherData = { ...weatherData, ...historicalRes.weather_data }
             setWeatherData(weatherData)
-            setLocation(historicalRes.location)
+            if (location.name === '-') setLocation(historicalRes.location)
           }
           if (forecastRes) {
             weatherData = { ...weatherData, ...forecastRes.weather_data }
             setWeatherData(weatherData)
-            setLocation(forecastRes.location)
+            if (location.name === '-') setLocation(forecastRes.location)
           }
         } catch (e) {
         }

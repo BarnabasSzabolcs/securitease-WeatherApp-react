@@ -38,7 +38,7 @@ export const MainDisplay: React.FC<WeatherDisplayProps> = ({ location, weather, 
               {weather?.weather_icon ?
                 <img src={weather.weather_icon} alt="" className="w-12 h-12"/> :
                 <div className="w-12 h-12"/>}
-              <div className="text-sm">{weather?.weather_description || '-'}</div>
+              <div className="text-sm">{weather?.weather_description || '\u00A0'}</div>
             </div>
             <div className="text-3xl pt-3">{weather ? weather.temperature : '-'}&deg;c</div>
             <table className="text-xs">
