@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 /_temp
+/test-results
 
 # Editor directories and files
 .vscode/*
