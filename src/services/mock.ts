@@ -28,7 +28,7 @@ type ApiCallResult = {
   weather_data: Record<string, WeatherData | null>
 } | undefined
 
-export async function getMockCurrentWeather (query: string): Promise<ApiCallResult> {
+export async function getMockWeatherCurrent (query: string): Promise<ApiCallResult> {
   // Mock implementation for current weather
   return new Promise(resolve => {
     setTimeout(() => {

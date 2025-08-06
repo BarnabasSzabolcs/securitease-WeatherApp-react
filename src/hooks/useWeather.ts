@@ -2,14 +2,14 @@ import type { ApiCallResult, Location, WeatherData } from '../types/weather'
 
 import { useEffect, useState } from 'react'
 import { getDatesAround, getTodayISO, isHistoryEndpointEnabled, isMockEnabled } from '../utils/utils.ts'
-import { getMockCurrentWeather, getMockWeatherForecast, getMockWeatherHistorical } from '../services/mock.ts'
-import { getLiveCurrentWeather, getLiveWeatherForecast, getLiveWeatherHistorical } from '../services/live.ts'
+import { getMockWeatherCurrent, getMockWeatherForecast, getMockWeatherHistorical } from '../services/mock.ts'
+import { getLiveWeatherCurrent, getLiveWeatherForecast, getLiveWeatherHistorical } from '../services/live.ts'
 
-async function getCurrentWeather (query: string): Promise<ApiCallResult> {
+async function getWeatherCurrent (query: string): Promise<ApiCallResult> {
   if (isMockEnabled()) {
-    return await getMockCurrentWeather(query)
+    return await getMockWeatherCurrent(query)
   }
-  return await getLiveCurrentWeather(query)
+  return await getLiveWeatherCurrent(query)
 }
 
 async function getWeatherHistorical (query: string): Promise<ApiCallResult> {
@@ -46,7 +46,7 @@ export function useWeather (query: string) {
       // We wait for the current to be fetched first, because otherwise the free API will ratelimit us.
       // If the user has pro API key, then it is not a big wait.
       try {
-        const res = await getCurrentWeather(query)
+        const res = await getWeatherCurrent(query)
         if (res) {
           weatherData = { ...weatherData, ...res.weather_data }
           setWeatherData(weatherData)

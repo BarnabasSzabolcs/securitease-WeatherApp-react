@@ -8,7 +8,7 @@ import { getApiKey, getDatesAround, getTodayISO } from '../utils/utils.ts'
 import type { ApiCallResult } from '../types/weather.ts'
 import type { Location, WeatherData } from '../../_temp/src/types/weather.ts'
 
-export async function getLiveCurrentWeather (query: string): Promise<ApiCallResult> {
+export async function getLiveWeatherCurrent (query: string): Promise<ApiCallResult> {
   const currUrl = new URL('https://api.weatherstack.com/current')
   currUrl.search = new URLSearchParams({
     access_key: getApiKey(),
