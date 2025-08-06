@@ -2,8 +2,8 @@ import type { ApiCallResult, Location, WeatherData } from '../types/weather'
 
 import { useEffect, useState } from 'react'
 import { getDatesAround, getTodayISO, isHistoryEndpointEnabled, isMockEnabled } from '../utils/utils.ts'
-import { getMockCurrentWeather, getMockHistoricalWeather } from '../services/mock.ts'
-import { getLiveCurrentWeather, getLiveHistoricalWeather } from '../services/live.ts'
+import { getMockCurrentWeather, getMockWeatherForecast, getMockWeatherHistorical } from '../services/mock.ts'
+import { getLiveCurrentWeather, getLiveWeatherForecast, getLiveWeatherHistorical } from '../services/live.ts'
 
 async function getCurrentWeather (query: string): Promise<ApiCallResult> {
   if (isMockEnabled()) {
@@ -12,11 +12,18 @@ async function getCurrentWeather (query: string): Promise<ApiCallResult> {
   return await getLiveCurrentWeather(query)
 }
 
-async function getHistoricalWeather (query: string): Promise<ApiCallResult> {
+async function getWeatherHistorical (query: string): Promise<ApiCallResult> {
   if (isMockEnabled()) {
-    return await getMockHistoricalWeather(query)
+    return await getMockWeatherHistorical(query)
   }
-  return await getLiveHistoricalWeather(query)
+  return await getLiveWeatherHistorical(query)
+}
+
+async function getWeatherForecast(query: string): Promise<ApiCallResult> {
+  if (isMockEnabled()) {
+    return await getMockWeatherForecast(query)
+  }
+  return await getLiveWeatherForecast(query)
 }
 
 export function useWeather (query: string) {
@@ -49,12 +56,19 @@ export function useWeather (query: string) {
       }
       if (isHistoryEndpointEnabled()) {
         try {
-          // Forecast could be retrieved here, in parallel to historical data.
-          const res = await getHistoricalWeather(query)
-          if (res) {
-            weatherData = { ...weatherData, ...res.weather_data }
+          const [historicalRes, forecastRes] = await Promise.all([
+            getWeatherHistorical(query),
+            getWeatherForecast(query),
+          ])
+          if (historicalRes) {
+            weatherData = { ...weatherData, ...historicalRes.weather_data }
             setWeatherData(weatherData)
-            setLocation(res.location)
+            setLocation(historicalRes.location)
+          }
+          if (forecastRes) {
+            weatherData = { ...weatherData, ...forecastRes.weather_data }
+            setWeatherData(weatherData)
+            setLocation(forecastRes.location)
           }
         } catch (e) {
         }

@@ -1,3 +1,9 @@
+/**
+ * Live weather service using WeatherStack API
+ *
+ * See documentation at https://weatherstack.com/documentation
+ */
+
 import { getApiKey, getDatesAround, getTodayISO } from '../utils/utils.ts'
 import type { ApiCallResult } from '../types/weather.ts'
 import type { Location, WeatherData } from '../../_temp/src/types/weather.ts'
@@ -30,12 +36,12 @@ export async function getLiveCurrentWeather (query: string): Promise<ApiCallResu
       wind_speed: c.wind_speed ?? '-',
       pressure: c.pressure ?? '-',
       precip: c.precip ?? '-',
-    }
+    },
   }
   return { weather_data, location }
 }
 
-export async function getLiveHistoricalWeather (query: string): Promise<ApiCallResult> {
+export async function getLiveWeatherHistorical (query: string): Promise<ApiCallResult> {
   const histUrl = new URL('https://api.weatherstack.com/historical')
   const today = getTodayISO()
   const dates = getDatesAround(today, 3).filter(d => d < today)
@@ -61,6 +67,49 @@ export async function getLiveHistoricalWeather (query: string): Promise<ApiCallR
   if (historyResponse.historical) {
     for (const d of dates) {
       const h = historyResponse.historical[d]
+      weather_data[d] = h
+        ? {
+          temperature: h.temperature ?? '-',
+          weather_icon: h.weather_icons?.[0] ?? '-',
+          weather_description: h.weather_descriptions?.[0] ?? '-',
+          wind_speed: h.wind_speed ?? '-',
+          pressure: h.pressure ?? '-',
+          precip: h.precip ?? '-',
+        }
+        : null
+    }
+  }
+  return { weather_data, location }
+}
+
+export async function getLiveWeatherForecast (query: string): Promise<ApiCallResult> {
+  const histUrl = new URL('https://api.weatherstack.com/forecast')
+  const today = getTodayISO()
+  const dates = getDatesAround(today, 3).filter(d => d > today)
+
+  histUrl.search = new URLSearchParams({
+    access_key: getApiKey(),
+    query,
+    forecast_days: '3',
+    units: 'm',
+    hourly: '1',
+    interval: '24', // day average
+  }).toString()
+  const res = await fetch(histUrl)
+  const historyResponse: any = res.json()
+  if (historyResponse.success === false) throw new Error(historyResponse)
+  let location: Location = { name: '-', country: '-', region: '-' }
+  const weather_data: any = {}
+  if (historyResponse.location) {
+    location = {
+      name: historyResponse.location.name,
+      country: historyResponse.location.country,
+      region: historyResponse.location.region,
+    }
+  }
+  if (historyResponse.forecast) {
+    for (const d of dates) {
+      const h = historyResponse.forecast[d]?.hourly?.[0] // get the first hourly data for the day
       weather_data[d] = h
         ? {
           temperature: h.temperature ?? '-',

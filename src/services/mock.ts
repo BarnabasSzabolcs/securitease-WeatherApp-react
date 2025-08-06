@@ -1,5 +1,5 @@
 import type { Location, WeatherData } from '../types/weather.ts'
-import { getTodayISO } from '../utils/utils.ts'
+import { getDateISO, getTodayISO } from '../utils/utils.ts'
 
 const mockIconSrc = 'https://assets.weatherstack.com/images/wsymbols01_png_64/wsymbol_0001_sunny.png'
 
@@ -13,24 +13,13 @@ const getMockWeather = (i: number) => {
     precip: i,
   }
 }
-const query = 'Pretoria'
 const mockResult: {
   location: Location;
-  weather_data: Record<string, WeatherData | null>
 } = {
   location: {
-    name: query,
+    name: 'Pretoria',
     country: 'South Africa',
     region: 'Gauteng',
-  },
-  weather_data: {
-    '2025-08-03': getMockWeather(0),
-    '2025-08-04': getMockWeather(1),
-    '2025-08-05': getMockWeather(2),
-    '2025-08-06': getMockWeather(3),
-    '2025-08-07': null,
-    '2025-08-08': null,
-    '2025-08-09': null,
   },
 }
 
@@ -43,7 +32,7 @@ export async function getMockCurrentWeather (query: string): Promise<ApiCallResu
   // Mock implementation for current weather
   return new Promise(resolve => {
     setTimeout(() => {
-      const location = {...mockResult.location}
+      const location = { ...mockResult.location }
       location.name = query
       resolve({
         location,
@@ -53,17 +42,48 @@ export async function getMockCurrentWeather (query: string): Promise<ApiCallResu
   })
 }
 
-export async function getMockHistoricalWeather (query: string): Promise<ApiCallResult> {
-  // Mock implementation for historical weather
+export async function getMockWeatherHistorical (query: string): Promise<ApiCallResult> {
   return new Promise(resolve => {
+    const today = new Date()
+    const dates = Array.from({ length: 3 }, (_, i) => {
+      const date = new Date(today)
+      date.setDate(today.getDate() - (3 - i))
+      return getDateISO(date)
+    })
+    const weather_data: Record<string, WeatherData | null> = {}
+    dates.forEach((date, i) => {
+      weather_data[date] = getMockWeather(i)
+    })
     setTimeout(() => {
-      const location = {...mockResult.location}
+      const location = { ...mockResult.location }
       location.name = query
       resolve({
         location,
-        weather_data: mockResult.weather_data,
+        weather_data,
       })
     }, 1000)
   })
 }
 
+export async function getMockWeatherForecast (query: string): Promise<ApiCallResult> {
+  return new Promise(resolve => {
+    const today = new Date()
+    const dates = Array.from({ length: 3 }, (_, i) => {
+      const date = new Date(today)
+      date.setDate(today.getDate() + (i + 1))
+      return getDateISO(date)
+    })
+    const weather_data: Record<string, WeatherData | null> = {}
+    dates.forEach((date, i) => {
+      weather_data[date] = getMockWeather(i)
+    })
+    setTimeout(() => {
+      const location = { ...mockResult.location }
+      location.name = query
+      resolve({
+        location,
+        weather_data,
+      })
+    }, 1000)
+  })
+}
