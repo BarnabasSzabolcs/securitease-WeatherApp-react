@@ -75,7 +75,7 @@ export async function getMockWeatherForecast (query: string): Promise<ApiCallRes
     })
     const weather_data: Record<string, WeatherData | null> = {}
     dates.forEach((date, i) => {
-      weather_data[date] = getMockWeather(i)
+      weather_data[date] = getMockWeather(i+4) // Start from 4 to differentiate from historical
     })
     setTimeout(() => {
       const location = { ...mockResult.location }
