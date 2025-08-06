@@ -1,6 +1,7 @@
 import type { Location, WeatherData } from '../types/weather'
 import React from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { unique } from '../utils/utils.ts'
 
 interface WeatherDisplayProps {
   location: Location;
@@ -12,8 +13,9 @@ interface WeatherDisplayProps {
 export const MainDisplay: React.FC<WeatherDisplayProps> = ({ location, weather, isLoading, selectedDate }) => {
 
   function getLocation () {
+    // NOTE: Set preserves insertion order.
     return isLoading ? 'Loading...' : (
-      [location.name, location.region, location.country]
+      unique([location.name, location.region, location.country])
         .filter(x => x && x != '-')
         .join(', ')
       || 'No location selected')

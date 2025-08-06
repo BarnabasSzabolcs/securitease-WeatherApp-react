@@ -1,3 +1,7 @@
+export function unique(arr: any[]): any[] {
+  return [...new Set(arr)]
+}
+
 export function getDateISO(date?: Date): string {
   const d = date ?? new Date()
   const year = d.getFullYear()
