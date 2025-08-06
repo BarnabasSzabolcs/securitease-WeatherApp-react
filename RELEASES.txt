@@ -1,0 +1,2 @@
+2025.08.06
+- MVP version, with happy flow e2e tested, but errors handled when arise.
