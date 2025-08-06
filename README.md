@@ -6,31 +6,40 @@ Build a weather application that showcases your ability to create a production-r
 The app should include the core functionality of displaying weather information, with attention to clean code, testing,
 and prioritization.
 
-## Requirements:
-### Core Features:
+## Installing and using the App:
 
-1. **Current Weather:** Display the current weather for a specified location.
-2. **3-Day Forecast & 3-Day History:** Show weather details for the next 3 days and the past 3 days in a grid or list view.
-3. **Interactive Selection:** Clicking on a day’s weather tile updates the main display to show details for that specific day.
+### Prerequisities:
 
-### Bonus Points
- - Animations or transitions for a better user experience.
- - Responsive design for mobile and desktop screens.
- - Innovative use of browser storage or service workers for caching.
- - Well-structured commit history.
+Install node version 22 (eg. `nvm use 22`), and install yarn (optional).
+run `yarn && yarn dev` (or `npm install && npm dev`)
 
-## Guidelines:
- - Use React with TypeScript.
- - Use Vite to scaffold your app (or an equivalent setup you’re comfortable with).
- - Fetch data using the WeatherStack API (free tier). Use the native Fetch API (no libraries like Axios).
- - Choose any styling approach you prefer (e.g., CSS-in-JS, Tailwind, Chakra UI, etc.).
+NOTE: when running `yarn dev` in non-mocking mode, you need to disable StrictMode, 
+otherwise you'll run into rate limiting issues with the WeatherStack API.
 
-## Deliverables:
-- **Functioning Weather App:** The core features must work as described.
-- **Documentation:**
-  - Clear instructions on how to set up and run the app.
-  - Brief explanation of design decisions and trade-offs.
-- **Tests:** Include tests that validate core features
+### Running the App locally:
+`yarn dev`
 
-## Submission:
-Upload your project to a public GitHub repository and share the link.
+### Building the App:
+`yarn build`
+
+### Testing the App:
+`yarn test:e2e` (See also Playwright test.run.xml in directory `.run`)
+
+Note that the app uses Playwright for end-to-end testing, 
+and different values in the .env file lead to different e2e expectations.
+
+## Technical choices:
+
+- The use of Historical and Forecast endpoints can be controlled by an environment variable, 
+  also the mocking of all the API calls. (Notably only 100 WeatherStack API calls per month are available for free.)
+
+- Caching mechanism: uses the current "today", not the today of the response. This may lead to faulty caching,
+  if the request was sent right before midnight. (This is negligable in practice.)
+  (There is a fallback to LocalStorage if the Cache API is not available. I think it is fairly unnecessary though, 
+  as ~95% of browsers support the Cache API, without service workers.)
+
+- I used Playwright for testing because it has the reputation to be fast and reliable, so it was interesting to try it out.
+
+- With the styling tried to match the mockup as closely as possible, with colors controlled by CSS variables.
+- I usually use frameworks like ChackraUI over Tailwind, but I wanted to try it, and this project was a good opportunity to do so.
+- Animations are run using Framer-Motion, otherwise it is difficult to get them smooth with React.
