@@ -83,7 +83,7 @@ Format:
 }
 ```
 The service shall try to read cached data
-with key 'isMock/endpoint/queryParameters'.
+with key 'version/date/[mock or live]/endpoint/query'.
 
 The cached data shall be read from Cache Storage API (global availability: 95%, even without service workers), 
 Fallback: localStorage, if Cache Storage API is not available.

@@ -4,26 +4,42 @@ import { useEffect, useState } from 'react'
 import { getDatesAround, getTodayISO, isHistoryEndpointEnabled, isMockEnabled } from '../utils/utils.ts'
 import { getMockWeatherCurrent, getMockWeatherForecast, getMockWeatherHistorical } from '../services/mock.ts'
 import { getLiveWeatherCurrent, getLiveWeatherForecast, getLiveWeatherHistorical } from '../services/live.ts'
+import { cachedCall } from '../utils/cache.ts'
 
 async function getWeatherCurrent (query: string): Promise<ApiCallResult> {
-  if (isMockEnabled()) {
-    return await getMockWeatherCurrent(query)
-  }
-  return await getLiveWeatherCurrent(query)
+  return cachedCall(
+    'current',
+    query,
+    (async () =>
+        isMockEnabled() ?
+          await getMockWeatherCurrent(query) :
+          await getLiveWeatherCurrent(query)
+    ),
+  )
 }
 
 async function getWeatherHistorical (query: string): Promise<ApiCallResult> {
-  if (isMockEnabled()) {
-    return await getMockWeatherHistorical(query)
-  }
-  return await getLiveWeatherHistorical(query)
+  return cachedCall(
+    'historical',
+    query,
+    (async () =>
+        isMockEnabled() ?
+          await getMockWeatherHistorical(query) :
+          await getLiveWeatherHistorical(query)
+    ),
+  )
 }
 
-async function getWeatherForecast(query: string): Promise<ApiCallResult> {
-  if (isMockEnabled()) {
-    return await getMockWeatherForecast(query)
-  }
-  return await getLiveWeatherForecast(query)
+async function getWeatherForecast (query: string): Promise<ApiCallResult> {
+  return cachedCall(
+    'forecast',
+    query,
+    (async () =>
+        isMockEnabled() ?
+          await getMockWeatherForecast(query) :
+          await getLiveWeatherForecast(query)
+    ),
+  )
 }
 
 export function useWeather (query: string) {
@@ -76,6 +92,7 @@ export function useWeather (query: string) {
       setIsLoading(false)
     }
 
+    // noinspection JSIgnoredPromiseFromCall
     fetchWeather()
   }, [query])
 
