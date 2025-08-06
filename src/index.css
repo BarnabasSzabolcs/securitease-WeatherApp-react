@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root{
+    --primary: #2C586E;
+    --secondary: #618094;
+    --dark: #16394C;
+    --hover: #728fa1;
+    --selected: #2C586E99;
+    --text: #fffd;
+    --input-text: #2d3f46;
+    --input-bg: #f5f5f5;
+}
+body {
+    background-color: var(--primary);
+    font-family: Tahoma, system-ui, sans-serif;
+}
