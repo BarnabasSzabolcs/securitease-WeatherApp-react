@@ -13,6 +13,9 @@ and prioritization.
 Install node version 22 (eg. `nvm use 22`), and install yarn (optional).
 run `yarn && yarn dev` (or `npm install && npm dev`)
 
+NOTE: when running `yarn dev` in non-mocking mode, you need to disable StrictMode, 
+otherwise you'll run into rate limiting issues with the WeatherStack API.
+
 ### Running the App locally:
 `yarn dev`
 
