@@ -1,7 +1,7 @@
 import type { ApiCallResult, Location, WeatherData } from '../types/weather'
 
 import { useEffect, useState } from 'react'
-import { getDatesAround, getTodayISO, arePaidEndpointsEnabled, isMockEnabled } from '../utils/utils.ts'
+import { arePaidEndpointsEnabled, getDatesAround, getTodayISO, isMockEnabled } from '../utils/utils.ts'
 import { getMockWeatherCurrent, getMockWeatherForecast, getMockWeatherHistorical } from '../services/mock.ts'
 import { getLiveWeatherCurrent, getLiveWeatherForecast, getLiveWeatherHistorical } from '../services/live.ts'
 import { cachedCall } from '../utils/cache.ts'
@@ -42,17 +42,33 @@ async function getWeatherForecast (query: string): Promise<ApiCallResult> {
   )
 }
 
+function extractErrorMessage(e: any, fallback: string): string {
+  if (e.name === 'TypeError' || e.message === 'Failed to fetch') return 'Network connection error.'
+  if (!e) return fallback
+  if (typeof e === 'string') return e
+  if (e.message) return e.message
+  if (e.status && e.error) return `Error ${e.status}: ${e.error}`
+  if (e.status && e.statusText) return `Error ${e.status}: ${e.statusText}`
+  if (e.status) return `Error ${e.status}`
+  if (e.success === false && e.error) {
+    return `Error (${e.error.code}): ${e.error.info}`
+  }
+  return fallback
+}
+
 export function useWeather (query: string) {
   const [location, setLocation] = useState<Location>({ name: '', country: '', region: '' })
   const [weather_data, setWeatherData] = useState<Record<string, WeatherData | null>>({})
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!query) return
 
     const fetchWeather = async () => {
       setIsLoading(true)
-      setLocation({ name: '-', country: '-', region: '-' })
+      setError(null)
+      // setLocation({ name: '-', country: '-', region: '-' })
       const nullWeatherData: Record<string, WeatherData | null> = {}
       const dates = getDatesAround(getTodayISO())
       for (const date of dates) {
@@ -60,8 +76,6 @@ export function useWeather (query: string) {
       }
 
       let weatherData: Record<string, WeatherData | null> = { ...nullWeatherData }
-      // We wait for the current to be fetched first, because otherwise the free API will ratelimit us.
-      // If the user has pro API key, then it is not a big wait.
       try {
         const res = await getWeatherCurrent(query)
         if (res) {
@@ -69,7 +83,8 @@ export function useWeather (query: string) {
           setWeatherData(weatherData)
           setLocation(res.location)
         }
-      } catch (e) {
+      } catch (e: any) {
+        setError(extractErrorMessage(e, 'Failed to fetch current weather'))
       }
       if (arePaidEndpointsEnabled()) {
         try {
@@ -87,7 +102,8 @@ export function useWeather (query: string) {
             setWeatherData(weatherData)
             if (location.name === '-') setLocation(forecastRes.location)
           }
-        } catch (e) {
+        } catch (e: any) {
+          setError(extractErrorMessage(e, 'Failed to fetch paid weather data'))
         }
       }
       setIsLoading(false)
@@ -101,5 +117,6 @@ export function useWeather (query: string) {
     location,
     weather_data,
     isLoading,
+    error,
   }
 }

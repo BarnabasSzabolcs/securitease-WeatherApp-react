@@ -6,8 +6,7 @@
  *  - Old caches do not get deleted, but it is ok because we don't store a lot of data.
  */
 
-import { getTodayISO } from '../../_temp/src/services/WeatherService.ts'
-import { isMockEnabled } from './utils.ts'
+import { getTodayISO, isMockEnabled } from './utils.ts'
 
 const VERSION = '1'
 

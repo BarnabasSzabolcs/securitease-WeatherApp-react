@@ -5,8 +5,20 @@
  */
 
 import { getApiKey, getDatesAround, getTodayISO } from '../utils/utils.ts'
-import type { ApiCallResult } from '../types/weather.ts'
-import type { Location, WeatherData } from '../../_temp/src/types/weather.ts'
+import type { ApiCallResult, Location, WeatherData } from '../types/weather.ts'
+
+async function safeFetchJson (url: any) {
+  const res = await fetch(url)
+  if (!res.ok) {
+    const errorData = await res.json()
+    throw errorData
+  }
+  const resJson = await res.json()
+  if (resJson.success === false) {
+    throw resJson
+  }
+  return resJson
+}
 
 export async function getLiveWeatherCurrent (query: string): Promise<ApiCallResult> {
   const currUrl = new URL('https://api.weatherstack.com/current')
@@ -15,18 +27,16 @@ export async function getLiveWeatherCurrent (query: string): Promise<ApiCallResu
     query,
     units: 'm',
   }).toString()
-  const res = await fetch(currUrl)
-  let currentResponse: any = await res.json()
-  if (currentResponse.success === false) throw new Error(currentResponse)
+  const response = await safeFetchJson(currUrl)
   let location: Location = { name: '-', country: '-', region: '-' }
-  if (currentResponse.location) {
+  if (response.location) {
     location = {
-      name: currentResponse.location.name,
-      country: currentResponse.location.country,
-      region: currentResponse.location.region,
+      name: response.location.name,
+      country: response.location.country,
+      region: response.location.region,
     }
   }
-  const c = currentResponse.current
+  const c = response.current
   const today = getTodayISO()
   const weather_data: Record<string, WeatherData | null> = {
     [today]: {
@@ -52,21 +62,19 @@ export async function getLiveWeatherHistorical (query: string): Promise<ApiCallR
     units: 'm',
     historical_date: dates.join(';'),
   }).toString()
-  const res = await fetch(histUrl)
-  const historyResponse: any = res.json()
-  if (historyResponse.success === false) throw new Error(historyResponse)
+  const response = await safeFetchJson(histUrl)
   let location: Location = { name: '-', country: '-', region: '-' }
   const weather_data: any = {}
-  if (historyResponse.location) {
+  if (response.location) {
     location = {
-      name: historyResponse.location.name,
-      country: historyResponse.location.country,
-      region: historyResponse.location.region,
+      name: response.location.name,
+      country: response.location.country,
+      region: response.location.region,
     }
   }
-  if (historyResponse.historical) {
+  if (response.historical) {
     for (const d of dates) {
-      const h = historyResponse.historical[d]
+      const h = response.historical[d]
       weather_data[d] = h
         ? {
           temperature: h.temperature ?? '-',
@@ -83,11 +91,11 @@ export async function getLiveWeatherHistorical (query: string): Promise<ApiCallR
 }
 
 export async function getLiveWeatherForecast (query: string): Promise<ApiCallResult> {
-  const histUrl = new URL('https://api.weatherstack.com/forecast')
+  const url = new URL('https://api.weatherstack.com/forecast')
   const today = getTodayISO()
   const dates = getDatesAround(today, 3).filter(d => d > today)
 
-  histUrl.search = new URLSearchParams({
+  url.search = new URLSearchParams({
     access_key: getApiKey(),
     query,
     forecast_days: '3',
@@ -95,21 +103,19 @@ export async function getLiveWeatherForecast (query: string): Promise<ApiCallRes
     hourly: '1',
     interval: '24', // day average
   }).toString()
-  const res = await fetch(histUrl)
-  const historyResponse: any = res.json()
-  if (historyResponse.success === false) throw new Error(historyResponse)
+  const response = await safeFetchJson(url)
   let location: Location = { name: '-', country: '-', region: '-' }
   const weather_data: any = {}
-  if (historyResponse.location) {
+  if (response.location) {
     location = {
-      name: historyResponse.location.name,
-      country: historyResponse.location.country,
-      region: historyResponse.location.region,
+      name: response.location.name,
+      country: response.location.country,
+      region: response.location.region,
     }
   }
-  if (historyResponse.forecast) {
+  if (response.forecast) {
     for (const d of dates) {
-      const h = historyResponse.forecast[d]?.hourly?.[0] // get the first hourly data for the day
+      const h = response.forecast[d]?.hourly?.[0] // get the first hourly data for the day
       weather_data[d] = h
         ? {
           temperature: h.temperature ?? '-',
