@@ -20,7 +20,7 @@ export const MainDisplay: React.FC<WeatherDisplayProps> = ({ location, weather, 
   }
 
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-hidden" data-e2e="main-display">
       <AnimatePresence mode="popLayout">
         <motion.div
           key={selectedDate}
@@ -30,7 +30,7 @@ export const MainDisplay: React.FC<WeatherDisplayProps> = ({ location, weather, 
           transition={{ duration: 0.5, ease: 'easeInOut' }}
           className="px-6 flex flex-col gap-4"
         >
-          <div className="font-semibold self-center text-sm mb-2">
+          <div className="font-semibold self-center text-sm mb-2" data-e2e="main-location">
             {getLocation()}
           </div>
           <div className="flex items-start justify-between mb-2">

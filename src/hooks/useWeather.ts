@@ -1,7 +1,7 @@
 import type { ApiCallResult, Location, WeatherData } from '../types/weather'
 
 import { useEffect, useState } from 'react'
-import { getDatesAround, getTodayISO, isHistoryEndpointEnabled, isMockEnabled } from '../utils/utils.ts'
+import { getDatesAround, getTodayISO, arePaidEndpointsEnabled, isMockEnabled } from '../utils/utils.ts'
 import { getMockWeatherCurrent, getMockWeatherForecast, getMockWeatherHistorical } from '../services/mock.ts'
 import { getLiveWeatherCurrent, getLiveWeatherForecast, getLiveWeatherHistorical } from '../services/live.ts'
 import { cachedCall } from '../utils/cache.ts'
@@ -52,6 +52,7 @@ export function useWeather (query: string) {
 
     const fetchWeather = async () => {
       setIsLoading(true)
+      setLocation({ name: '-', country: '-', region: '-' })
       const nullWeatherData: Record<string, WeatherData | null> = {}
       const dates = getDatesAround(getTodayISO())
       for (const date of dates) {
@@ -70,7 +71,7 @@ export function useWeather (query: string) {
         }
       } catch (e) {
       }
-      if (isHistoryEndpointEnabled()) {
+      if (arePaidEndpointsEnabled()) {
         try {
           const [historicalRes, forecastRes] = await Promise.all([
             getWeatherHistorical(query),

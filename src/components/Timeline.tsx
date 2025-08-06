@@ -19,7 +19,7 @@ export const Timeline: React.FC<TimelineProps> = ({ weather_data, selectedDate, 
   }
   const today = getTodayISO()
   return (
-    <div className="flex gap-1 mt-4 justify-evenly items-stretch">
+    <div className="flex gap-1 mt-4 justify-evenly items-stretch" data-e2e="timeline">
       {days.map(date => {
         const data = weather_data[date]
         const isSelected = date === selectedDate
@@ -35,7 +35,7 @@ export const Timeline: React.FC<TimelineProps> = ({ weather_data, selectedDate, 
                 {getDayOfWeek(date)}
               </span>
             {data?.weather_icon && <img src={data?.weather_icon} alt="weather icon" className="w-8 h-8"/>}
-            <span className={`${isToday ? 'font-bold' : ''}`}>{data?.temperature ?? '-'}&deg;c</span>
+            <span className={`${isToday ? 'font-bold' : ''}`} data-e2e="temperature">{data?.temperature ? `${data.temperature}°c`: '-'}</span>
           </button>
         )
       })}

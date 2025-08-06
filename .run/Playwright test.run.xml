@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Playwright test" type="NodeJSConfigurationType" application-parameters="test ./e2e" path-to-node="$USER_HOME$/.nvm/versions/node/v22.14.0/bin/node" path-to-js-file="node_modules/.bin/playwright" working-dir="$PROJECT_DIR$">
+    <envs>
+      <env name="VITE_USE_MOCK_API" value="true" />
+      <env name="VITE_USE_PAID_ENDPOINTS" value="true" />
+    </envs>
+    <method v="2" />
+  </configuration>
+</component>

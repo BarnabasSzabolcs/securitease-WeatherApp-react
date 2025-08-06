@@ -33,6 +33,6 @@ export function isMockEnabled () {
   return getEnv('VITE_USE_MOCK_API') === 'true'
 }
 
-export function isHistoryEndpointEnabled () {
-  return getEnv('VITE_USE_HISTORY_ENDPOINT') === 'true'
+export function arePaidEndpointsEnabled () {
+  return getEnv('VITE_USE_PAID_ENDPOINTS') === 'true'
 }

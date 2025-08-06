@@ -1,5 +1,7 @@
 import type { Location, WeatherData } from '../types/weather.ts'
-import { getDateISO, getTodayISO } from '../utils/utils.ts'
+import { arePaidEndpointsEnabled, getDateISO, getTodayISO } from '../utils/utils.ts'
+
+const MOCK_DELAY = 300 // ms
 
 const mockIconSrc = 'https://assets.weatherstack.com/images/wsymbols01_png_64/wsymbol_0001_sunny.png'
 
@@ -18,8 +20,8 @@ const mockResult: {
 } = {
   location: {
     name: 'Pretoria',
-    country: 'South Africa',
-    region: 'Gauteng',
+    country: 'Mockland',
+    region: arePaidEndpointsEnabled() ? 'Mock History' : 'Mock Current',
   },
 }
 
@@ -38,7 +40,7 @@ export async function getMockWeatherCurrent (query: string): Promise<ApiCallResu
         location,
         weather_data: { [getTodayISO()]: getMockWeather(3) },
       })
-    }, 1000)
+    }, MOCK_DELAY)
   })
 }
 
@@ -61,7 +63,7 @@ export async function getMockWeatherHistorical (query: string): Promise<ApiCallR
         location,
         weather_data,
       })
-    }, 1000)
+    }, MOCK_DELAY)
   })
 }
 
@@ -75,7 +77,7 @@ export async function getMockWeatherForecast (query: string): Promise<ApiCallRes
     })
     const weather_data: Record<string, WeatherData | null> = {}
     dates.forEach((date, i) => {
-      weather_data[date] = getMockWeather(i+4) // Start from 4 to differentiate from historical
+      weather_data[date] = getMockWeather(i + 4) // Start from 4 to differentiate from historical
     })
     setTimeout(() => {
       const location = { ...mockResult.location }
@@ -84,6 +86,6 @@ export async function getMockWeatherForecast (query: string): Promise<ApiCallRes
         location,
         weather_data,
       })
-    }, 1000)
+    }, MOCK_DELAY)
   })
 }
