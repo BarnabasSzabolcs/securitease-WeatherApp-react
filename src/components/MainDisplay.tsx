@@ -4,16 +4,17 @@ import React from 'react'
 interface WeatherDisplayProps {
   location: Location;
   weather: WeatherData | null;
+  isLoading: boolean;
 }
 
-export const MainDisplay: React.FC<WeatherDisplayProps> = ({ location, weather }) => {
+export const MainDisplay: React.FC<WeatherDisplayProps> = ({ location, weather, isLoading }) => {
 
   function getLocation () {
-    return (
+    return isLoading ? 'Loading...' : (
       [location.name, location.region, location.country]
         .filter(x => x && x != '-')
         .join(', ')
-    ) || 'No location selected'
+      || 'No location selected')
   }
 
   return (

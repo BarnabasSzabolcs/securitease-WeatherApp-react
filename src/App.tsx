@@ -13,7 +13,7 @@ function App () {
   const [selectedDate, setSelectedDate] = React.useState<string>(getTodayISO())
   const [selectedWeather, setSelectedWeather] = React.useState<WeatherData | null>(null)
 
-  const { location, weather_data } = useWeather(query)
+  const { location, weather_data, isLoading } = useWeather(query)
 
   useEffect(() => {
     setSelectedDate(getTodayISO())
@@ -34,7 +34,7 @@ function App () {
         <LocationSelector onSubmit={setQuery}/>
       </div>
       <div className="max-w-lg mx-auto mt-2 bg-dark border-3 rounded-1xl text-text p-3">
-        <MainDisplay location={location} weather={selectedWeather}/>
+        <MainDisplay location={location} weather={selectedWeather} isLoading={isLoading}/>
         <Timeline weather_data={weather_data} selectedDate={selectedDate} onDateSelect={onDateSelect}/>
       </div>
     </div>

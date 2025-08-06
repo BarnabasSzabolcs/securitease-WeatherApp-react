@@ -11,3 +11,8 @@ export type WeatherData = {
   pressure: number;
   precip: number;
 };
+
+export type ApiCallResult = {
+  location: Location;
+  weather_data: Record<string, WeatherData | null>;
+} | undefined;
