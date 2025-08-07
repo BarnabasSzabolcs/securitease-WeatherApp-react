@@ -1,3 +1,10 @@
+/**
+ * MainDisplay component for showing the main weather information and the location.
+ * Displays loading state, location details, weather icon, temperature, and other weather metrics.
+ * Animates transitions between selected dates and displays weather details.
+ * @module
+ */
+
 import type { Location, WeatherData } from '../types/weather'
 import React from 'react'
 import { AnimatePresence, motion } from 'framer-motion'

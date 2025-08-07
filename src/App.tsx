@@ -1,3 +1,10 @@
+/**
+ * Main application entry point for the weather app.
+ * Handles location search, weather data retrieval, date selection, and error display.
+ * Integrates LocationSelector, MainDisplay, and Timeline components.
+ * @module
+ */
+
 import { LocationSelector } from './components/LocationSelector'
 import { MainDisplay } from './components/MainDisplay'
 import { Timeline } from './components/Timeline'

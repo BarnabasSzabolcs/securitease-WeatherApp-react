@@ -2,6 +2,7 @@
  * Live weather service using WeatherStack API
  *
  * See documentation at https://weatherstack.com/documentation
+ * @module
  */
 
 import { getApiKey, getDatesAround, getTodayISO } from '../utils/utils.ts'

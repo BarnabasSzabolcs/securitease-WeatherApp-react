@@ -1,4 +1,8 @@
 ## Requirements:
+
+  ![UI Mockup](mockup.png)  
+  Visual reference of the intended UI.
+
 ### Core Features:
 
 1. **Current Weather:** Display the current weather for a specified location.

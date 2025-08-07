@@ -1,6 +1,13 @@
+/**
+ * End-to-end test for the weather app happy-flow interaction.
+ * - Tests initial state of the app, including location and timeline.
+ * - Tests selecting a new location and verifying updates (including loading).
+ * - Tests timeline item selection, highlighting, and returning to today.
+ */
+
 import { expect, test } from '@playwright/test'
 
-test('Weather app initial state and timeline interaction', async ({ page }) => {
+test('Weather app happy-flow interaction', async ({ page }) => {
   await page.goto('/')
   const isMockEnabled = process.env.VITE_USE_MOCK_API === 'true'
   const arePaidEndpointsEnabled = process.env.VITE_USE_PAID_ENDPOINTS === 'true'
