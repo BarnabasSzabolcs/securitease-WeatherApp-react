@@ -1,4 +1,4 @@
-import type { Location, WeatherData } from '../types/weather.ts'
+import type { ApiCallResult, Location, WeatherData } from '../types/weather.ts'
 import { arePaidEndpointsEnabled, getDateISO, getTodayISO } from '../utils/utils.ts'
 
 const MOCK_DELAY = 300 // ms
@@ -25,11 +25,6 @@ const mockResult: {
   },
 }
 
-type ApiCallResult = {
-  location: Location,
-  weather_data: Record<string, WeatherData | null>
-} | undefined
-
 export async function getMockWeatherCurrent (query: string): Promise<ApiCallResult> {
   // Mock implementation for current weather
   return new Promise(resolve => {
@@ -44,9 +39,9 @@ export async function getMockWeatherCurrent (query: string): Promise<ApiCallResu
   })
 }
 
-export async function getMockWeatherHistorical (query: string): Promise<ApiCallResult> {
+export async function getMockWeatherHistorical (currentDate: string, query: string): Promise<ApiCallResult> {
   return new Promise(resolve => {
-    const today = new Date()
+    const today = new Date(currentDate)
     const dates = Array.from({ length: 3 }, (_, i) => {
       const date = new Date(today)
       date.setDate(today.getDate() - (3 - i))

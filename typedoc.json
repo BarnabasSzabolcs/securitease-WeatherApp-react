@@ -1,0 +1,14 @@
+{
+  "entryPoints": ["./src"],
+  "entryPointStrategy": "expand",
+  "excludeNotDocumented": true,
+  "exclude": ["**/*.d.ts"],
+  "out": "docs",
+  "name": "Securitease Weather App",
+  "tsconfig": "./tsconfig.app.json",
+  "projectDocuments": ["documents/**/*.md"],
+  "plugin": [
+    "@yookue/typedoc-theme-dumi"
+  ],
+  "theme": "dumi"
+}

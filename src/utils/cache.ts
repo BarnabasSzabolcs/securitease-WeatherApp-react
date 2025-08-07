@@ -4,6 +4,7 @@
  * NOTES:
  *  - Increment VERSION when the structure of the cached data changes, to bust old cached items.
  *  - Old caches do not get deleted, but it is ok because we don't store a lot of data.
+ * @module
  */
 
 import { getTodayISO, isMockEnabled } from './utils.ts'
@@ -47,6 +48,19 @@ async function cacheSet (callType: string, query: string, data: any) {
   }
 }
 
+/**
+ * Wrapper for cached API calls, used to fetch weather data.
+ * It stores and retrieves data from cache based on the call type and query.
+ * The cached data is stored using Cache API or LocalStorage API as fallback.
+ *
+ * Retrieves data from cache if available, otherwise fetches it using the provided function,
+ * stores it in cache, and returns the result.
+ *
+ * @param callType - The type of weather data call (e.g., 'current', 'historical', 'forecast').
+ * @param query - The location query string.
+ * @param fetchFn - An async function that fetches the data if not cached.
+ * @returns A promise resolving to the requested data.
+ */
 export async function cachedCall (
   callType: string,
   query: string,

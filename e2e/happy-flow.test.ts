@@ -1,6 +1,13 @@
+/**
+ * End-to-end test for the weather app happy-flow interaction.
+ * - Tests initial state of the app, including location and timeline.
+ * - Tests selecting a new location and verifying updates (including loading).
+ * - Tests timeline item selection, highlighting, and returning to today.
+ */
+
 import { expect, test } from '@playwright/test'
 
-test('Weather app initial state and timeline interaction', async ({ page }) => {
+test('Weather app happy-flow interaction', async ({ page }) => {
   await page.goto('/')
   const isMockEnabled = process.env.VITE_USE_MOCK_API === 'true'
   const arePaidEndpointsEnabled = process.env.VITE_USE_PAID_ENDPOINTS === 'true'
@@ -38,12 +45,12 @@ test('Weather app initial state and timeline interaction', async ({ page }) => {
   if (!arePaidEndpointsEnabled) {
     for (let i = 0; i < timelineCount; i++) {
       const tempText = await timelineItems.nth(i).locator('[data-e2e="temperature"]').innerText()
-      expect(tempText).toBe('-')
+      if (i == 3)
+        expect(tempText).toBe('28°c')
+      else
+        expect(tempText).toBe('-')
     }
-    const todayTempText = await timelineToday.locator('[data-e2e="temperature"]').innerText()
-    expect(todayTempText).toBe('28°c')
-  }
-  if (arePaidEndpointsEnabled) {
+  } else {
     // If history is true, check that timeline items have valid temperatures
     for (let i = 0; i < timelineCount; i++) {
       const tempText = await timelineItems.nth(i).locator('[data-e2e="temperature"]').innerText()
