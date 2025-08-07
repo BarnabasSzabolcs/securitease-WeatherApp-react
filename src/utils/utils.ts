@@ -49,7 +49,7 @@ function getEnv (key: string) {
  * @returns The WeatherStack API key as a string, or undefined if not set.
  */
 export function getApiKey () {
-  return localStorage.getItem('WEATHERSTACK_API_KEY') || getEnv('VITE_WEATHERSTACK_API_KEY')
+  return getEnv('VITE_WEATHERSTACK_API_KEY')
 }
 
 /**
@@ -57,7 +57,7 @@ export function getApiKey () {
  * @returns True if mock API is enabled, false otherwise.
  */
 export function isMockEnabled () {
-  return getEnv('VITE_USE_MOCK_API') === 'true'
+  return ['true', '1'].includes(getEnv('VITE_USE_MOCK_API')?.toLowerCase())
 }
 
 /**
@@ -65,5 +65,5 @@ export function isMockEnabled () {
  * @returns True if paid endpoints are enabled, false otherwise.
  */
 export function arePaidEndpointsEnabled () {
-  return getEnv('VITE_USE_PAID_ENDPOINTS') === 'true'
+  return ['true', '1'].includes(getEnv('VITE_USE_PAID_ENDPOINTS')?.toLowerCase())
 }
