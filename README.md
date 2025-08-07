@@ -25,6 +25,9 @@ otherwise you'll run into rate limiting issues with the WeatherStack API.
 ### Testing the App:
 `yarn test:e2e` (See also Playwright test.run.xml in directory `.run`)
 
+### Generating documentation:
+`yarn docs`
+
 Note that the app uses Playwright for end-to-end testing, 
 and different values in the .env file lead to different e2e expectations.
 

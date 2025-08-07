@@ -1,3 +1,9 @@
+/**
+ * LocationSelector component for searching and selecting a location.
+ * Provides an input field and a submit button for user queries.
+ * @module
+ */
+
 import React, { useState } from 'react'
 
 interface LocationSelectorProps {

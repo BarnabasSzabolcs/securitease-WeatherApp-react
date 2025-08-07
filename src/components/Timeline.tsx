@@ -1,3 +1,11 @@
+/**
+ * Timeline component for selecting a date and getting an overview of the upcoming and past weather.
+ * Displays a horizontal list of days with weather icons and temperatures.
+ * Enables selection of a specific date to view detailed weather information in MainDisplay.
+ * Highlights the selected date and today.
+ * @module
+ */
+
 import { getTodayISO } from '../utils/utils.ts'
 import React from 'react'
 import type { WeatherData } from '../types/weather.ts'

@@ -2,6 +2,7 @@
  * Live weather service using WeatherStack API
  *
  * See documentation at https://weatherstack.com/documentation
+ * @module
  */
 
 import { getApiKey, getDatesAround, getTodayISO } from '../utils/utils.ts'
@@ -10,8 +11,7 @@ import type { ApiCallResult, Location, WeatherData } from '../types/weather.ts'
 async function safeFetchJson (url: any) {
   const res = await fetch(url)
   if (!res.ok) {
-    const errorData = await res.json()
-    throw errorData
+    throw await res.json()
   }
   const resJson = await res.json()
   if (resJson.success === false) {
@@ -29,17 +29,23 @@ export async function getLiveWeatherCurrent (query: string): Promise<ApiCallResu
   }).toString()
   const response = await safeFetchJson(currUrl)
   let location: Location = { name: '-', country: '-', region: '-' }
-  if (response.location) {
-    location = {
-      name: response.location.name,
-      country: response.location.country,
-      region: response.location.region,
-    }
+  if (!response.location) {
+    // React protects against script injection attack, so this is safe:
+    throw new Error(`Location "${query}" not available.`)
+  }
+  location = {
+    name: response.location.name,
+    country: response.location.country,
+    region: response.location.region,
   }
   const c = response.current
-  const today = getTodayISO()
+  if (!c) {
+    throw new Error('No current weather data available.')
+  }
+  // get the date part of localtime
+  const currentDate = response.location.localtime.split(' ')[0]
   const weather_data: Record<string, WeatherData | null> = {
-    [today]: {
+    [currentDate]: {
       temperature: c.temperature ?? '-',
       weather_icon: c.weather_icons?.[0] ?? '-',
       weather_description: c.weather_descriptions?.[0] ?? '-',
@@ -51,10 +57,9 @@ export async function getLiveWeatherCurrent (query: string): Promise<ApiCallResu
   return { weather_data, location }
 }
 
-export async function getLiveWeatherHistorical (query: string): Promise<ApiCallResult> {
+export async function getLiveWeatherHistorical (currentDate: string, query: string): Promise<ApiCallResult> {
   const histUrl = new URL('https://api.weatherstack.com/historical')
-  const today = getTodayISO()
-  const dates = getDatesAround(today, 3).filter(d => d < today)
+  const dates = getDatesAround(currentDate, 3).filter(d => d < currentDate)
 
   histUrl.search = new URLSearchParams({
     access_key: getApiKey(),
