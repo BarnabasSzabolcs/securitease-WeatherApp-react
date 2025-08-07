@@ -38,12 +38,12 @@ test('Weather app initial state and timeline interaction', async ({ page }) => {
   if (!arePaidEndpointsEnabled) {
     for (let i = 0; i < timelineCount; i++) {
       const tempText = await timelineItems.nth(i).locator('[data-e2e="temperature"]').innerText()
-      expect(tempText).toBe('-')
+      if (i == 3)
+        expect(tempText).toBe('28°c')
+      else
+        expect(tempText).toBe('-')
     }
-    const todayTempText = await timelineToday.locator('[data-e2e="temperature"]').innerText()
-    expect(todayTempText).toBe('28°c')
-  }
-  if (arePaidEndpointsEnabled) {
+  } else {
     // If history is true, check that timeline items have valid temperatures
     for (let i = 0; i < timelineCount; i++) {
       const tempText = await timelineItems.nth(i).locator('[data-e2e="temperature"]').innerText()
