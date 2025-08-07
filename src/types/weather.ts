@@ -15,4 +15,4 @@ export type WeatherData = {
 export type ApiCallResult = {
   location: Location;
   weather_data: Record<string, WeatherData | null>;
-} | undefined;
+};
