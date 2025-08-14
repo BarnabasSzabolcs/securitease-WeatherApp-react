@@ -1,6 +1,7 @@
 import type { ApiCallResult, Location, WeatherData } from '../types/weather'
 
-import { useEffect, useState } from 'react'
+import isEqual from 'lodash-es/isEqual'
+import { type Dispatch, useEffect, useReducer, useRef } from 'react'
 import { arePaidEndpointsEnabled, getDatesAround, getTodayISO, isMockEnabled } from '../utils/utils.ts'
 import { getMockWeatherCurrent, getMockWeatherForecast, getMockWeatherHistorical } from '../services/mock.ts'
 import { getLiveWeatherCurrent, getLiveWeatherForecast, getLiveWeatherHistorical } from '../services/live.ts'
@@ -99,72 +100,146 @@ function getNullWeatherData (date: string): Record<string, WeatherData | null> {
   return nullWeatherData
 }
 
+// Define state and actions for the reducer
+interface WeatherState {
+  location: Location
+  weather_data: Record<string, WeatherData | null>
+  isLoading: boolean
+  error: string | null
+}
+
+type WeatherAction =
+  | { type: 'FETCH_INIT' }
+  | { type: 'FETCH_SUCCESS'; payload: { weather_data: Record<string, WeatherData | null>; location: Location } }
+  | { type: 'ADD_WEATHER_DATA'; payload: Record<string, WeatherData | null> }
+  | { type: 'SET_LOCATION'; payload: Location }
+  | { type: 'FETCH_FAILURE'; payload: string }
+  | { type: 'SET_LOADING'; payload: boolean }
+
+const initialState: WeatherState = {
+  location: { name: '', country: '', region: '' },
+  weather_data: {},
+  isLoading: false,
+  error: null,
+}
+
+function weatherReducer (state: WeatherState, action: WeatherAction): WeatherState {
+  switch (action.type) {
+    case 'FETCH_INIT':
+      return {
+        ...state, isLoading: true, error: null,
+        // location: { name: '-', country: '-', region: '-' },
+      }
+    case 'FETCH_SUCCESS':
+      return {
+        ...state,
+        isLoading: false,
+        error: null,
+        weather_data: action.payload.weather_data,
+        location: action.payload.location,
+      }
+    case 'ADD_WEATHER_DATA':
+      return { ...state, weather_data: { ...state.weather_data, ...action.payload } }
+    case 'SET_LOCATION':
+      if (isEqual(state.location, action.payload)) {
+        return state
+      }
+      return { ...state, location: action.payload }
+    case 'FETCH_FAILURE':
+      return { ...state, isLoading: false, error: action.payload }
+    case 'SET_LOADING':
+      return { ...state, isLoading: action.payload }
+    default:
+      return state
+  }
+}
+
+// Helper to safely dispatch only if mounted and not aborted
+
+function createSafeDispatch (dispatch: Dispatch<WeatherAction>, abortController: AbortController, isMountedRef: {
+  current: boolean
+}) {
+  return (action: WeatherAction) => {
+    if (isMountedRef.current && !abortController.signal.aborted) {
+      dispatch(action)
+    }
+  }
+}
+
+async function fetchAndMergeWeather (
+  fetchFn: () => Promise<ApiCallResult>,
+  safeDispatch: (action: WeatherAction) => void,
+  mergeLocation = false,
+) {
+  try {
+    const res = await fetchFn()
+    safeDispatch({ type: 'ADD_WEATHER_DATA', payload: res.weather_data })
+    if (mergeLocation && res.location) {
+      safeDispatch({ type: 'SET_LOCATION', payload: res.location })
+    }
+  } catch (e: any) {
+    safeDispatch({ type: 'FETCH_FAILURE', payload: extractErrorMessage(e, 'Failed to fetch weather data') })
+  }
+}
+
+async function fetchWeather (
+  query: string,
+  safeDispatch: (action: WeatherAction) => void,
+) {
+  safeDispatch({ type: 'FETCH_INIT' })
+  let today: string = getTodayISO()
+  let weatherData = getNullWeatherData(today)
+  try {
+    const res = await getWeatherCurrent(query)
+    const currentToday = Object.keys(res.weather_data)[0]
+    if (currentToday !== today) {
+      today = currentToday
+      weatherData = getNullWeatherData(today)
+    }
+    weatherData = { ...weatherData, ...res.weather_data }
+    safeDispatch({ type: 'FETCH_SUCCESS', payload: { weather_data: weatherData, location: res.location } })
+  } catch (e: any) {
+    safeDispatch({ type: 'FETCH_FAILURE', payload: extractErrorMessage(e, 'Failed to fetch current weather') })
+    return
+  }
+
+  if (arePaidEndpointsEnabled()) {
+    await Promise.all([
+      fetchAndMergeWeather(() => getWeatherHistorical(today, query), safeDispatch, true),
+      fetchAndMergeWeather(() => getWeatherForecast(query), safeDispatch, true),
+    ])
+  }
+  safeDispatch({ type: 'SET_LOADING', payload: false })
+}
+
 /**
  * React hook to fetch and manage weather data for a given location query.
  * Handles loading state, error state, and combines current, historical, and forecast data.
  * @param query - The location query string.
  * @returns An object containing location, weather data, loading state, and error message.
+ *
+ * Note: isMountedRef and abortController are used to prevent state updates after the component has unmounted,
+ * which can happen if the component is unmounted before the fetch completes.
+ * This is important to avoid memory leaks and errors in React applications.
  */
 export function useWeather (query: string) {
-  const [location, setLocation] = useState<Location>({ name: '', country: '', region: '' })
-  const [weather_data, setWeatherData] = useState<Record<string, WeatherData | null>>({})
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [state, dispatch] = useReducer(weatherReducer, initialState)
+  const isMountedRef = useRef(true)
 
   useEffect(() => {
     if (!query) return
 
-    const fetchWeather = async () => {
-      setIsLoading(true)
-      setError(null)
-      // setLocation({ name: '-', country: '-', region: '-' })
-      let today: string = getTodayISO()
-      let weatherData = getNullWeatherData(today)
-      try {
-        const res = await getWeatherCurrent(query)
-        const currentToday = Object.keys(res.weather_data)[0]
-        if (currentToday !== today) {
-          today = currentToday
-          weatherData = getNullWeatherData(today)
-        }
-        weatherData = { ...weatherData, ...res.weather_data }
-        setWeatherData(weatherData)
-        setLocation(res.location)
-      } catch (e: any) {
-        setError(extractErrorMessage(e, 'Failed to fetch current weather'))
-      }
+    const abortController = new AbortController()
+    isMountedRef.current = true
+    const safeDispatch = createSafeDispatch(dispatch, abortController, isMountedRef)
 
-      if (arePaidEndpointsEnabled()) {
-        try {
-          const [historicalRes, forecastRes] = await Promise.all([
-            getWeatherHistorical(today, query),
-            getWeatherForecast(query),
-          ])
-          if (historicalRes) {
-            weatherData = { ...weatherData, ...historicalRes.weather_data }
-            setWeatherData(weatherData)
-            if (location.name === '-') setLocation(historicalRes.location)
-          }
-          if (forecastRes) {
-            weatherData = { ...weatherData, ...forecastRes.weather_data }
-            setWeatherData(weatherData)
-            if (location.name === '-') setLocation(forecastRes.location)
-          }
-        } catch (e: any) {
-          setError(extractErrorMessage(e, 'Failed to fetch paid weather data'))
-        }
-      }
-      setIsLoading(false)
+    fetchWeather(query, safeDispatch).catch(console.error)
+
+    return () => {
+      isMountedRef.current = false
+      abortController.abort()
     }
-
-    // noinspection JSIgnoredPromiseFromCall
-    fetchWeather()
   }, [query])
 
-  return {
-    location,
-    weather_data,
-    isLoading,
-    error,
-  }
+  return state
 }
