@@ -11,6 +11,7 @@
     "docs": "typedoc"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.85.2",
     "framer-motion": "^12.23.12",
     "lodash-es": "^4.17.21",
     "react": "^19.1.0",

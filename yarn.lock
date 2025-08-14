@@ -626,6 +626,18 @@
   resolved "https://registry.yarnpkg.com/@shikijs/vscode-textmate/-/vscode-textmate-10.0.2.tgz#a90ab31d0cc1dfb54c66a69e515bf624fa7b2224"
   integrity sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==
 
+"@tanstack/query-core@5.85.2":
+  version "5.85.2"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.85.2.tgz#843cc63e64b6513d6fb7915d930150c4f98605b7"
+  integrity sha512-h9vFUVYKoNNgXzb5mK4dP686yawJp9CLLTMjB2PF4KA1D5AbUI2KfxnxBdEQKnLwzzMjmBpucmmsGChZK7RqcQ==
+
+"@tanstack/react-query@^5.85.2":
+  version "5.85.2"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.85.2.tgz#7f85bdc4fbc4081a52b4dc41de563edebd5b0e0c"
+  integrity sha512-B/sLNHkhGi3hVZg3xsH82sCSkEqdyfZXBrkumo7FeIKuXgsCRp4tmLSCC/2YU/oPyQuoVGzQhyzM8p3UjO19kw==
+  dependencies:
+    "@tanstack/query-core" "5.85.2"
+
 "@types/babel__core@^7.20.5":
   version "7.20.5"
   resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.20.5.tgz#3df15f27ba85319caa07ba08d0721889bb39c017"
